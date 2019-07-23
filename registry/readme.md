@@ -14,7 +14,7 @@
       registry:2
   ```
 
-  [Web Ui](https://github.com/mkuchin/docker-registry-web)
+  [Web UI](https://github.com/mkuchin/docker-registry-web)
   ```
   docker run -d \
     -p 8080:8080 \
