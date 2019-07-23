@@ -1,0 +1,47 @@
+version: '3'
+services:
+  # 在swarm leader上部署
+  consulserver:
+    image: consul:latest
+    hostname: consulserver
+    ports:
+      - "8500:8500"
+    expose:
+      - "8300-8302"
+      - "8300-8302/udp"
+      - "8600"
+      - "8600/udp"
+    command: consul agent -server -ui -data-dir /tmp/consul --bootstrap-expect=2 -client 0.0.0.0
+
+
+  # consul server1在consul server服务起来后，加入集群中
+  consulserver1:
+    image: consul:latest
+    hostname: consulserver1
+    expose:
+      - "8500"
+      - "8300-8302"
+      - "8300-8302/udp"
+      - "8600"
+      - "8600/udp"
+    depends_on:
+      - "consulserver"
+    command: consul agent -server -data-dir /tmp/consul -join consulserver
+
+  
+  # 每个swarm node上都部署一个
+  registrator:
+    image: gliderlabs/registrator:latest
+    hostname: registrator
+    depends_on:
+      - "consulserver"
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock"
+    command: -internal consul://consulserver:8500
+    deploy:
+      mode: global 
+
+networks:
+  default:
+    external:
+      name: vogue

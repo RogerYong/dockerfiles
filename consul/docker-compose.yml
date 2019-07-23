@@ -1,0 +1,33 @@
+version: '3'
+services:
+  # TODO 在swarm leader上部署
+  consulserver:
+    image: consul:latest
+    hostname: consulserver
+    ports:
+      - "8500:8500"
+    expose:
+      - "8300-8302"
+      - "8300-8302/udp"
+      - "8600"
+      - "8600/udp"
+    command: consul agent -server -ui -data-dir /tmp/consul -bootstrap -client 0.0.0.0  -bind '{{ GetPrivateInterfaces | include "network" "10.0.0.0/8" | attr "address" }}'
+
+  # 每个swarm node上都部署一个
+  registrator:
+    image: gliderlabs/registrator:latest
+    hostname: registrator
+    depends_on:
+      - "consulserver"
+    volumes:
+      - "/var/run/docker.sock:/tmp/docker.sock"
+    command: -internal consul://consulserver:8500
+    deploy:
+      mode: global 
+
+
+
+networks:
+  default:
+    external:
+      name: vogue
