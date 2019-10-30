@@ -8,13 +8,11 @@ services:
     restart: always
     volumes:
       - /media/ices/327E75477E7504BF/docker/registry:/var/lib/registry
-  registry-web:
-    image: hyper/docker-registry-web
-    ports: 
-      - "8080:8080"
+  registry-ui:
+    image: joxit/docker-registry-ui:static
+    ports:
+      - "8080:80"
     restart: always
-    depends_on: 
-      - registry-srv
     environment: 
-      - REGISTRY_URL=http://registry-srv:5000/v2
-      - REGISTRY_NAME=registry-srv:5000
+      - REGISTRY_URL=http://registry-srv:5000
+      - DELETE_IMAGES=true

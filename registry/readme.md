@@ -14,17 +14,7 @@
       registry:2
   ```
 
-  [Web UI](https://github.com/mkuchin/docker-registry-web)
-  ```
-  docker run -d \
-    -p 8080:8080 \
-    --name registry-web \
-    --link registry-srv \
-    --restart=always \
-    -e REGISTRY_URL=http://registry-srv:5000/v2 \
-    -e REGISTRY_NAME=registry-srv:5000 \
-    hyper/docker-registry-web
-  ```
+  [Web UI](https://github.com/Joxit/docker-registry-ui)
 
 
 
