@@ -7,7 +7,7 @@ services:
       - "5000:5000"
     restart: always
     volumes:
-      - /media/ices/327E75477E7504BF/docker/registry:/var/lib/registry
+      - ./docker-registry:/var/lib/registry
   registry-ui:
     image: joxit/docker-registry-ui:static
     ports:
@@ -16,3 +16,4 @@ services:
     environment: 
       - REGISTRY_URL=http://registry-srv:5000
       - DELETE_IMAGES=true
+      - PULL_URL=http://10.249.182.84:5000

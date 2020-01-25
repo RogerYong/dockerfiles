@@ -1,93 +1,42 @@
-# registry
+# Docker Registry
 
-## 运行registry及Web UI
+HTTP协议的Docker Registry
 
-### 方法1. 强制HTTP(最简单)
 
-  服务端
-  ```
-  docker run -d \
-      -p 5000:5000 \
-      --restart=always \
-      -v /media/ices/327E75477E7504BF/docker/registry:/var/lib/registry \
-      --name registry-srv \
-      registry:2
-  ```
+# 安装方法
 
-  [Web UI](https://github.com/Joxit/docker-registry-ui)
+数据存储在`/data/tools/docker-registry/docker-registry`中.
+
+安装`docker-compose up -d`
+
+`http://10.249.182.84:5000`是registry服务
+
+`http://10.249.182.84:8080`是registry web ui
 
 
 
-  客户端在daemon.json中添加, 重启docker
 
-  ```
-  {
-    "insecure-registries" : ["10.0.244.12:5000"]
-  }
-  ```
+# 使用方法
 
-### 方法2. 自签名证书(在不重启docker的情况下使用, 麻烦)
+由于HTTP无加密, 因此, 如果需要使用这个私服, 需要在客户端的`/etc/docker/daemon.json`添加以下内容
 
 ```
-$ mkdir -p certs
-
-$ openssl req \
-  -newkey rsa:4096 -nodes -sha256 -keyout certs/domain.key \
-  -x509 -days 365 -out certs/domain.crt
+{
+    "insecure-registries" : ["10.249.182.84:5000"]
+}
+```
+后, 重启docker
+```
+sudo service docekr restart
 ```
 
-域名是 hub.docker.ices.com
-
-详细信息如下: 
-
-Country Name (2 letter code) [AU]:CN
-State or Province Name (full name) [Some-State]:Guangdong
-Locality Name (eg, city) []:Shenzhen
-Organization Name (eg, company) [Internet Widgits Pty Ltd]:HITsz
-Organizational Unit Name (eg, section) []:ices
-Common Name (e.g. server FQDN or YOUR name) []:hub.docker.ices.com    
-Email Address []:abc@gmail.com   
-
-
+就能使用push和pull了
 ```
-docker run -d \
-  --restart=always \
-  --name docker-registry \
-  -v "$(pwd)"/certs:/certs \
-  -v /media/ices/327E75477E7504BF/docker/registry:/var/lib/registry \
-  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
-  -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
-  -p 5000:5000 \
-  registry:2
-
+docker pull 10.249.182.84:5000/python
+docker push 10.249.182.84:5000/镜像名
 ```
 
-客户端修改/etc/hosts
-```
-10.0.244.12   hub.docker.ices.com 
-```
-证书拷贝
-```
-cd /etc/docker/certs.d
-mkdir hub.docker.ices.com:5000
-```
-copy server's domain.crt  to /etc/docker/certs.d/hub.docker.ices.com:5000/ca.crt
 
+# Web 管理
 
-## 使用registry
-(如果是方法1,下面的命令改成ip...)
-
-给已有Image打上新的标签
-```
-docker tag <imagename> hub.docker.ices.com:5000/<imagetag>
-```
-
-把image push 到仓库中
-```
-docker push hub.docker.ices.com:5000/<imagetag>
-```
-
-从仓库中拉取镜像
-```
-docker pull hub.docker.ices.com:5000/<imagetag>
-```
+10.249.182.84:8080
